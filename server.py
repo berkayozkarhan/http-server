@@ -9,6 +9,8 @@ import cgi
 
 tasklist = ['Task 1','Task 2','Task 3']
 
+
+
 def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
