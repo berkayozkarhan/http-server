@@ -10,7 +10,7 @@ tasklist = ['Task 1','Task 2','Task 3']
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self): #Orijinal sınıftaki metodu kendime göre işlem yapabilmek için override ediyorum.
         #self.path = '/store/index.html'
-        self.path = '/freshshop'
+        #self.path = '/freshshop'
         if self.path == '/freshshop':
             self.send_response(200)
             self.send_header('content-type','text/html')

@@ -39,6 +39,21 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             self.send_error(404, 'File Not Found: %s ' % filepath)
             return
 
+    def do_POST(self):
+        print("POST:{}".format(self.path))
+        if self.path == '/user/login':
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
+            content_len = int(self.headers.get('Content-length'))
+            pdict['CONTENT-LENGTH'] = content_len
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                eMail = fields.get('inputEmail')
+                password = fields.get('inputPassword')
+            self.send_response(301)
+            self.send_header('content-type', 'text/html')
+            self.send_header('Location', '/bootstrap-shop/loginhandle.html')
+            self.end_headers()
 
 
 def main():
