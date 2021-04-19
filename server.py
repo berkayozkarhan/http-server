@@ -11,6 +11,8 @@ tasklist = ['Task 1','Task 2','Task 3']
 
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
+        print(self.path)
+
         try:
             filepath =  self.path[1:] #request ile gelen dosya yolu.başında '/' işareti ile geldiği için / değerini almıyorum.
             file = codecs.open(filepath, "r", "utf-8")
