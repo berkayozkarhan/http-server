@@ -191,12 +191,12 @@
 		<button type="button" class="close" data-dismiss="alert">×</button>
 		<strong>Lorem Ipsum is simply</strong> dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
 	 </div> -->
-	<form class="form-horizontal" >
+	<form class="form-horizontal" method="post" enctype="multipart/form-data" action="/user/register">
 		<h4>Your personal information</h4>
 		<div class="control-group">
 		<label class="control-label">Title <sup>*</sup></label>
 		<div class="controls">
-		<select class="span1" name="days">
+		<select class="span1" name="shortening">
 			<option value="">-</option>
 			<option value="1">Mr.</option>
 			<option value="2">Mrs</option>
@@ -207,13 +207,13 @@
 		<div class="control-group">
 			<label class="control-label" for="inputFname1">First name <sup>*</sup></label>
 			<div class="controls">
-			  <input type="text" id="inputFname1" placeholder="First Name">
+			  <input type="text" id="inputFname1" name="firstName"placeholder="First Name">
 			</div>
 		 </div>
 		 <div class="control-group">
 			<label class="control-label" for="inputLnam">Last name <sup>*</sup></label>
 			<div class="controls">
-			  <input type="text" id="inputLnam" placeholder="Last Name">
+			  <input type="text" id="inputLnam" name="lastName" placeholder="Last Name">
 			</div>
 		 </div>
 		<div class="control-group">
@@ -270,26 +270,7 @@
 	 </div>	
 
 		<h4>Your address</h4>
-		<div class="control-group">
-			<label class="control-label" for="inputFname">First name <sup>*</sup></label>
-			<div class="controls">
-			  <input type="text" id="inputFname" placeholder="First Name">
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="inputLname">Last name <sup>*</sup></label>
-			<div class="controls">
-			  <input type="text" id="inputLname" placeholder="Last Name"/>
-			</div>
-		</div>
-		
-		<div class="control-group">
-			<label class="control-label" for="company">Company</label>
-			<div class="controls">
-			  <input type="text" id="company" placeholder="company"/>
-			</div>
-		</div>
-		
+
 		<div class="control-group">
 			<label class="control-label" for="address">Address<sup>*</sup></label>
 			<div class="controls">

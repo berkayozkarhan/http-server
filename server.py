@@ -54,7 +54,20 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             self.send_header('content-type', 'text/html')
             self.send_header('Location', '/bootstrap-shop/loginhandle.html')
             self.end_headers()
-
+        if self.path == '/user/register':
+            ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+            pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
+            content_len = int(self.headers.get('Content-length'))
+            pdict['CONTENT-LENGTH'] = content_len
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                firstName = fields.get('firstName')
+                lastName = fields.get('lastName')
+            self.send_response(301)
+            self.send_header('content-type', 'text/html')
+            #self.send_header('Location', '/bootstrap-shop/loginhandle.html')
+            self.end_headers()
+            self.wfile.write('<html><body><p>POST kontrol edildi.</p></body></html>'.encode())
 
 def main():
     PORT = 8000
