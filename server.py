@@ -95,6 +95,7 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                     data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
+                self.send_header('Location','/signup-failed')
                 self.end_headers()
                 data[178] = '<h3>{}</h3>'.format(dataControl[1]) #sayfaya fonksiyondan dönen başarılı başarısız mesajı yazıyorum.
                 eachInASeparateLine = "\n".join(data)
