@@ -41,22 +41,25 @@ def extractData(fields):
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
         print(self.path)
-
+        #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
         try:
             filepath =  self.path[1:] #request ile gelen dosya yolu.başında '/' işareti ile geldiği için / değerini almıyorum.
             mimetype, _ = mimetypes.guess_type(filepath)
-            if mimetype == 'image/png' or mimetype == 'image/jpeg':
-                file = load_binary(filepath)
-                self.send_response(200)
-                self.send_header('Content-type',mimetype)
-                self.end_headers()
-                self.wfile.write(file)
-            else:
+            if (mimetype == 'text/html' or mimetype == 'text/css' or mimetype == 'application/javascript'): #metin içerikliler encode edilerek gönderilmeli
                 file = codecs.open(filepath, "r", "utf-8")
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
                 self.wfile.write(file.read().encode())
+                print('MIMETYPE:{}'.format(mimetype))
+            else: #metin içerikli olmayanlar(binary) encode edilmeden gönderilmeli.
+                file = load_binary(filepath)
+                self.send_response(200)
+                self.send_header('Content-type',mimetype)
+                self.end_headers()
+                self.wfile.write(file)
+                print('MIMETYPE:{}'.format(mimetype))
+
         except IOError:
             self.send_error(404, 'File Not Found: %s ' % filepath)
             return
@@ -70,8 +73,9 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             pdict['CONTENT-LENGTH'] = content_len
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
-                eMail = fields.get('inputEmail')
-                password = fields.get('inputPassword')
+                #eMail = fields.get('inputEmail')
+                #password = fields.get('inputPassword')
+                loginControl(fields)
             self.send_response(301)
             self.send_header('content-type', 'text/html')
             self.send_header('Location', '/bootstrap-shop/loginhandle.html')

@@ -35,14 +35,20 @@ def registerControl(fields):
     homePhone = fields.get('phone-home')[0]
     mobilePhone = fields.get('mobile-phone')[0]
     cursor = db.cursor()
-    sqlUserControl = 'SELECT * FROM USERS WHERE EMAIL=\'{}\''.format(eMail)
-    cursor.execute(sqlUserControl)
+    sqlRegistryControl = 'SELECT * FROM USERS WHERE EMAIL=\'{}\''.format(eMail)
+    cursor.execute(sqlRegistryControl)
     result = cursor.fetchall()
     if result:
         return (False,responseMsg['sign-up-failed']) #Giriş başarısız.
     else:
         return (True,responseMsg['sign-up-success']) #Giriş başarılı.
 
+
+def loginControl(fields): #fields --Z dictionary
+    eMail = fields.get('inputEmail')[0]
+    password = fields.get('inputPassword')[0]
+    cursor = db.cursor()
+    sqlLoginControl = 'SELECT * FROM USERS WHERE EMAIL=\'{}\' and PASSWORD=\'{}\''.format(eMail,password)
 
 
 
