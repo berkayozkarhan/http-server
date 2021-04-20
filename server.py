@@ -3,6 +3,7 @@ import os
 import mimetypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import cgi
+from DBOperations import *
 #cgi:common gateway interface :
 #HTTPServer : dinlenecek port numarası
 #BaseHTTPRequestHandler : Requestleri yönetmek için
@@ -15,10 +16,10 @@ def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
-def getData(fields):
+def extractData(fields):
     firstName = fields.get('firstName')
     lastName = fields.get('lastName')
-    eMail = fields.get('eMail')
+    eMail = fields.get('eMail') #KONTROL
     password = fields.get('password')
     birthDay = fields.get('days')
     birthMonth = fields.get('months')
@@ -30,8 +31,8 @@ def getData(fields):
     postcode = fields.get('postcode')
     country = fields.get('country')
     additionalInfo = fields.get('aditionalInfo')
-    homePhone = fields.get('phone-home')
-    mobilePhone = fields.get('mobile-phone')
+    homePhone = fields.get('phone-home')#KONTROL EDİLEBİLİR
+    mobilePhone = fields.get('mobile-phone')#KONTROL EDİLEBİLİR
     return
 
 
@@ -75,19 +76,30 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             self.send_header('content-type', 'text/html')
             self.send_header('Location', '/bootstrap-shop/loginhandle.html')
             self.end_headers()
-        if self.path == '/user/register':
+        if self.path == '/user/register': #Kayıt işlemleri
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
             content_len = int(self.headers.get('Content-length'))
             pdict['CONTENT-LENGTH'] = content_len
+            dataControl = () #registerControl fonksiyonundan dönen değeri karşılayacak.->(True|False,Message)
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
-                getData(fields)
-            self.send_response(301)
-            self.send_header('content-type', 'text/html')
-            #self.send_header('Location', '/bootstrap-shop/loginhandle.html')
-            self.end_headers()
-            self.wfile.write('<html><body><p>POST kontrol edildi.</p></body></html>'.encode())
+                dataControl = registerControl(fields)
+            if dataControl[0]: #Kayıt başarılı
+                self.send_response(301)
+                self.send_header('content-type','text/html')
+                self.end_headers()
+                self.wfile.write(('<html><body><p>{}</p></body></html>'.format(dataControl[1])).encode())
+            else: #Kayıt başarısız.
+                with open('bootstrap-shop/loginhandle.html','r') as file:
+                    data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
+                self.send_response(301)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                data[178] = '<h3>{}</h3>'.format(dataControl[1]) #sayfaya fonksiyondan dönen başarılı başarısız mesajı yazıyorum.
+                eachInASeparateLine = "\n".join(data)
+                self.wfile.write(eachInASeparateLine.encode())
+
 
 def main():
     PORT = 8000
