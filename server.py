@@ -73,9 +73,7 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             pdict['CONTENT-LENGTH'] = content_len
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
-                #eMail = fields.get('inputEmail')
-                #password = fields.get('inputPassword')
-                loginControl(fields)
+                control = loginControl(fields)
             self.send_response(301)
             self.send_header('content-type', 'text/html')
             self.send_header('Location', '/bootstrap-shop/loginhandle.html')
@@ -89,12 +87,13 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 dataControl = registerControl(fields)
-            if dataControl[0]: #Kayıt başarılı
+            if dataControl[0]: #Kayıt başarılı : True
                 self.send_response(301)
                 self.send_header('content-type','text/html')
                 self.end_headers()
                 self.wfile.write(('<html><body><p>{}</p></body></html>'.format(dataControl[1])).encode())
-            else: #Kayıt başarısız.
+                self.send_header('Location','bootstrap-shop/index.html')
+            else: #Kayıt başarısız. : False
                 with open('bootstrap-shop/loginhandle.html','r') as file:
                     data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
