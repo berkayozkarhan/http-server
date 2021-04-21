@@ -16,24 +16,9 @@ def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
-def extractData(fields):
-    firstName = fields.get('firstName')
-    lastName = fields.get('lastName')
-    eMail = fields.get('eMail') #KONTROL
-    password = fields.get('password')
-    birthDay = fields.get('days')
-    birthMonth = fields.get('months')
-    birthYear = fields.get('years')
-    address1 = fields.get('adress1')
-    address2 = fields.get('address2')
-    city = fields.get('city')
-    stateID = fields.get('state')
-    postcode = fields.get('postcode')
-    country = fields.get('country')
-    additionalInfo = fields.get('aditionalInfo')
-    homePhone = fields.get('phone-home')#KONTROL EDİLEBİLİR
-    mobilePhone = fields.get('mobile-phone')#KONTROL EDİLEBİLİR
-    return
+def add_tags(tag,word):
+    return "<%s>%s</%s>" % (tag,word,tag)
+
 
 
 
@@ -93,7 +78,8 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 self.send_response(301)
                 self.send_header('content-type','text/html')
                 self.end_headers()
-                data[178] = '<h3>{}</h3>'.format(dataControl[1])
+                #data[178] = '<h3>{}</h3>'.format(dataControl[1])
+                data[178] = add_tags('h3',dataControl[1])
                 eachInASeparateLine = "\n".join(data)
                 self.wfile.write(eachInASeparateLine.encode())
 
