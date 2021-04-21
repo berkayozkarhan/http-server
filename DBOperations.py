@@ -9,7 +9,7 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 responseMsg = {
-                'sign-up-success':'Registration is successful. You are redirected to the homepage.',
+                'sign-up-success':'Registration is successful.<a href="bootstrap-shop/index.html">Homepage</a>',
                 'sign-up-failed':'Registration failed. Your e-mail address is already registered in the system.',
                 'login-success':'Login success.',
                 'login-failed':'Login failed.'

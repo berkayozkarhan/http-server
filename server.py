@@ -88,21 +88,26 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 dataControl = registerControl(fields)
             if dataControl[0]: #Kayıt başarılı : True
+                with open('bootstrap-shop/loginhandle.html','r') as file:
+                    data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
                 self.send_header('content-type','text/html')
                 self.end_headers()
-                self.wfile.write(('<html><body><p>{}</p></body></html>'.format(dataControl[1])).encode())
-                self.send_header('Location','bootstrap-shop/index.html')
+                data[178] = '<h3>{}</h3>'.format(dataControl[1])
+                eachInASeparateLine = "\n".join(data)
+                self.wfile.write(eachInASeparateLine.encode())
+
             else: #Kayıt başarısız. : False
                 with open('bootstrap-shop/loginhandle.html','r') as file:
                     data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
-                self.send_header('Location','/signup-failed')
+                #self.send_header('Location','/signup-failed')
                 self.end_headers()
                 data[178] = '<h3>{}</h3>'.format(dataControl[1]) #sayfaya fonksiyondan dönen başarılı başarısız mesajı yazıyorum.
                 eachInASeparateLine = "\n".join(data)
                 self.wfile.write(eachInASeparateLine.encode())
+
 
 
 def main():
