@@ -1,0 +1,4 @@
+function goButton()
+{
+    alert('test');
+}

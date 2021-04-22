@@ -1,13 +1,15 @@
 import mysql.connector
 
-db = mysql.connector.connect(
-    host="127.0.0.1",
-    user="root",
-    passwd="",
-    database="DboShop"
-)
-cursor = db.cursor()
-
+try:
+    db = mysql.connector.connect(
+        host="127.0.0.1",
+        user="root",
+        passwd="",
+        database="DboShop"
+    )
+    cursor = db.cursor()
+except:
+    print("Database connection error.")
 responseMsg = {
                 'sign-up-success':'Registration is successful.<a href="bootstrap-shop/index.html">Homepage</a>',
                 'sign-up-failed':'Registration failed. Your e-mail address is already registered in the system.',
@@ -70,7 +72,7 @@ def registerControl(fields):
         return (True,responseMsg['sign-up-success']) #Kayıt başarılı. Kaydetme işlemleri
 
 
-def loginControl(fields): #fields --Z dictionary
+def loginControl(fields): #fields --> dictionary
     eMail = fields.get('inputEmail')[0]
     password = fields.get('inputPassword')[0]
     cursor = db.cursor()
