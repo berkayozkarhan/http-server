@@ -1,6 +1,7 @@
 import codecs
 import os
 import mimetypes
+import posixpath
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import cgi
 from DBOperations import *
@@ -23,42 +24,34 @@ def add_tags(tag,word):
     return "<%s>%s</%s>" % (tag,word,tag)
 
 
-
-
-
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
         print(self.path)
+        print('TEST--------------------------')
+        cookie = self.headers.get('Set-Cookie', "")
+        if cookie:
+            print('Cookie var.')
+        print('TEST--------------------------')
         #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
         if not (self.path.startswith('/bootstrap-shop')): #gönderilecek bütün dosyalar bu dizin içerisinde
             self.path = "/bootstrap-shop" + self.path
         if self.path == '/bootstrap-shop/registersuccess':
             self.path = '/bootstrap-shop/registersuccess.html'
-            self.do_GET()
+            #self.do_GET()
         if self.path == '/bootstrap-shop/registerfailed':
             self.path = '/bootstrap-shop/registerfailed.html'
-            self.do_GET()
+            #self.do_GET()
         if self.path == '/bootstrap-shop/loginsuccess':
             self.path = '/bootstrap-shop/loginsuccess.html'
-            self.do_GET()
+            #self.do_GET()
         if self.path == '/bootstrap-shop/loginfailed':
             self.path = '/bootstrap-shop/loginfailed.html'
-            self.do_GET()
+            #self.do_GET()
 
         filepath = self.path[1:]
         try:
-            #self.do_GET()
             #request ile gelen dosya yolu.başında '/' işareti ile geldiği için / değerini almıyorum.
             mimetype, _ = mimetypes.guess_type(filepath)
-
-                #with open('bootstrap-shop/loginhandle.html', 'r') as file:
-                    #data = file.readlines()  # bütün satırları data değişkenine atıyorum. data-->list
-                #data[178] = add_tags('h3', responseMsg['sign-up-success'])
-                #eachInASeparateLine = "\n".join(data)
-                #self.send_response(200)
-                #self.send_header('content-type', 'text/html')
-                #self.end_headers()
-                #self.wfile.write(eachInASeparateLine.encode())
             if (mimetype == 'text/html' or mimetype == 'text/css' or mimetype == 'application/javascript'): #metin içerikliler encode edilerek gönderilmeli
                 try:
                     file = codecs.open(filepath, "r", "utf-8")
@@ -94,6 +87,16 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             if control: #Giriş başarılı
                 self.send_response(301)
                 self.send_header('content-type', 'text/html')
+                c = cookies.SimpleCookie()
+                random_id = random.randint(0, 1000000000) + int(time.time())
+                c["unique_idtest"] = random_id  # tell the browser to store a cookie
+                c["has_visited_beforetest"] = "yes"  # tell the browser to store a cookie
+                # set a cookie with a custom expiration date.. this cookie will self-destruct in year
+                expiration = datetime.datetime.now() + datetime.timedelta(days=365)
+                c["semi-permanent-cookietest"] = "here it is"
+                c["semi-permanent-cookietest"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S EST")
+                test = c.output()
+                self.send_header(c.output())
                 self.send_header('Location', '/bootstrap-shop/loginsuccess')
                 self.end_headers()
             else:
