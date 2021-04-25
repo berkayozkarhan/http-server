@@ -24,13 +24,16 @@ def add_tags(tag,word):
     return "<%s>%s</%s>" % (tag,word,tag)
 
 
+authorizedKeys = {}
+
+
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
         print(self.path)
         print('TEST--------------------------')
-        cookie = self.headers.get('Set-Cookie', "")
+        cookie = self.headers.get('Cookie') #.items olursa 6. index.
         if cookie:
-            print('Cookie var.')
+            print('cookie:{},user:{}'.format(cookie,authorizedKeys[cookie]))
         print('TEST--------------------------')
         #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
         if not (self.path.startswith('/bootstrap-shop')): #gönderilecek bütün dosyalar bu dizin içerisinde
@@ -41,8 +44,14 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
         if self.path == '/bootstrap-shop/registerfailed':
             self.path = '/bootstrap-shop/registerfailed.html'
             #self.do_GET()
-        if self.path == '/bootstrap-shop/loginsuccess':
-            self.path = '/bootstrap-shop/loginsuccess.html'
+        if self.path == '/bootstrap-shop/loginsuccess': #Giriş başarılı olmuşsa cookie değerini kontrol ediyorum.
+            cookie = self.headers.get('Cookie')  # .items olursa 6. index.
+            if cookie: #Test
+                print('cookie:{}'.format(cookie))
+                self.path = '/bootstrap-shop/loginsuccess.html'
+                self.do_GET()
+            else:
+                self.send_error(401,'You are not authorized to login to this page.')
             #self.do_GET()
         if self.path == '/bootstrap-shop/loginfailed':
             self.path = '/bootstrap-shop/loginfailed.html'
@@ -86,17 +95,19 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 control = loginControl(fields)
             if control: #Giriş başarılı
                 self.send_response(301)
-                self.send_header('content-type', 'text/html')
                 c = cookies.SimpleCookie()
                 random_id = random.randint(0, 1000000000) + int(time.time())
-                c["unique_idtest"] = random_id  # tell the browser to store a cookie
-                c["has_visited_beforetest"] = "yes"  # tell the browser to store a cookie
+                authorizedKeys[random_id] = {fields.get('inputEmail')[0]}
+                c["unique_id"] = random_id  # tell the browser to store a cookie
+                c["unique_id"]["path"] = "/bootstrap-shop"
+                c["has_visited_before"] = "yes"  # tell the browser to store a cookie
                 # set a cookie with a custom expiration date.. this cookie will self-destruct in year
                 expiration = datetime.datetime.now() + datetime.timedelta(days=365)
-                c["semi-permanent-cookietest"] = "here it is"
-                c["semi-permanent-cookietest"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S EST")
+                c["semi-permanent-cookie"] = "here it is"
+                c["semi-permanent-cookie"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S EST")
                 test = c.output()
-                self.send_header(c.output())
+                self.send_header('Cookie',c)
+                self.send_header('content-type', 'text/html')
                 self.send_header('Location', '/bootstrap-shop/loginsuccess')
                 self.end_headers()
             else:
