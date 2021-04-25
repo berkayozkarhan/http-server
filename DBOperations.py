@@ -77,7 +77,15 @@ def loginControl(fields): #fields --> dictionary
     password = fields.get('inputPassword')[0]
     cursor = db.cursor()
     sqlLoginControl = 'SELECT * FROM USERS WHERE EMAIL=\'{}\' and PASSWORD=\'{}\''.format(eMail,password)
-    cursor.execute()
+    try:
+        cursor.execute(sqlLoginControl)
+    except:
+        print('in DBOperations.loginControl, while executing query.')
+    result = cursor.fetchall()
+    if result:
+        return True
+    else:
+        return False
 
 
 

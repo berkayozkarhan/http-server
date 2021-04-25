@@ -38,6 +38,13 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
         if self.path == '/bootstrap-shop/registerfailed':
             self.path = '/bootstrap-shop/registerfailed.html'
             self.do_GET()
+        if self.path == '/bootstrap-shop/loginsuccess':
+            self.path = '/bootstrap-shop/loginsuccess.html'
+            self.do_GET()
+        if self.path == '/bootstrap-shop/loginfailed':
+            self.path = '/bootstrap-shop/loginfailed.html'
+            self.do_GET()
+
         filepath = self.path[1:]
         try:
             #self.do_GET()
@@ -84,10 +91,16 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             if ctype == 'multipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 control = loginControl(fields)
-            self.send_response(301)
-            self.send_header('content-type', 'text/html')
-            self.send_header('Location', '/bootstrap-shop/loginhandle.html')
-            self.end_headers()
+            if control: #Giriş başarılı
+                self.send_response(301)
+                self.send_header('content-type', 'text/html')
+                self.send_header('Location', '/bootstrap-shop/loginsuccess')
+                self.end_headers()
+            else:
+                self.send_response(301)
+                self.send_header('content-type','text/html')
+                self.send_header('Location','/bootstrap-shop/loginfailed')
+                self.end_headers()
         if self.path == '/user/register': #Kayıt işlemleri
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
