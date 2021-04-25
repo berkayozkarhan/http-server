@@ -4,6 +4,9 @@ import mimetypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import cgi
 from DBOperations import *
+import random
+import datetime,time
+from http import cookies
 #cgi:common gateway interface :
 #HTTPServer : dinlenecek port numarası
 #BaseHTTPRequestHandler : Requestleri yönetmek için
@@ -27,11 +30,33 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
     def do_GET(self):
         print(self.path)
         #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
+        if not (self.path.startswith('/bootstrap-shop')): #gönderilecek bütün dosyalar bu dizin içerisinde
+            self.path = "/bootstrap-shop" + self.path
+        if self.path == '/bootstrap-shop/registersuccess':
+            self.path = '/bootstrap-shop/registersuccess.html'
+            self.do_GET()
+        if self.path == '/bootstrap-shop/registerfailed':
+            self.path = '/bootstrap-shop/registerfailed.html'
+            self.do_GET()
+        filepath = self.path[1:]
         try:
-            filepath =  self.path[1:] #request ile gelen dosya yolu.başında '/' işareti ile geldiği için / değerini almıyorum.
+            #self.do_GET()
+            #request ile gelen dosya yolu.başında '/' işareti ile geldiği için / değerini almıyorum.
             mimetype, _ = mimetypes.guess_type(filepath)
+
+                #with open('bootstrap-shop/loginhandle.html', 'r') as file:
+                    #data = file.readlines()  # bütün satırları data değişkenine atıyorum. data-->list
+                #data[178] = add_tags('h3', responseMsg['sign-up-success'])
+                #eachInASeparateLine = "\n".join(data)
+                #self.send_response(200)
+                #self.send_header('content-type', 'text/html')
+                #self.end_headers()
+                #self.wfile.write(eachInASeparateLine.encode())
             if (mimetype == 'text/html' or mimetype == 'text/css' or mimetype == 'application/javascript'): #metin içerikliler encode edilerek gönderilmeli
-                file = codecs.open(filepath, "r", "utf-8")
+                try:
+                    file = codecs.open(filepath, "r", "utf-8")
+                except:
+                    print("Error while opening file.")
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
@@ -51,7 +76,7 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
 
     def do_POST(self):
         print("POST:{}".format(self.path))
-        if self.path == '/user/login':
+        if self.path == '/user/login': #Giriş işleri
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
             content_len = int(self.headers.get('Content-length'))
@@ -73,28 +98,15 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 dataControl = registerControl(fields)
             if dataControl[0]: #Kayıt başarılı : True
-                with open('bootstrap-shop/loginhandle.html','r') as file:
-                    data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
-                self.send_header('content-type','text/html')
+                self.send_header('content-type', 'text/html')
+                self.send_header('Location', '/bootstrap-shop/registersuccess')
                 self.end_headers()
-                #data[178] = '<h3>{}</h3>'.format(dataControl[1])
-                data[178] = add_tags('h3',dataControl[1])
-                eachInASeparateLine = "\n".join(data)
-                self.wfile.write(eachInASeparateLine.encode())
-
             else: #Kayıt başarısız. : False
-                with open('bootstrap-shop/loginhandle.html','r') as file:
-                    data = file.readlines() #bütün satırları data değişkenine atıyorum. data-->list
                 self.send_response(301)
                 self.send_header('Content-type', 'text/html')
-                #self.send_header('Location','/signup-failed')
+                self.send_header('Location','/bootstrap-shop/registerfailed')
                 self.end_headers()
-                data[178] = '<h3>{}</h3>'.format(dataControl[1]) #sayfaya fonksiyondan dönen başarılı başarısız mesajı yazıyorum.
-                eachInASeparateLine = "\n".join(data)
-                self.wfile.write(eachInASeparateLine.encode())
-
-
 
 def main():
     PORT = 8000
