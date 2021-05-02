@@ -47,9 +47,9 @@ def registerControl(fields):
         return (False,responseMsg['sign-up-failed']) #Kayıt başarısız.
     else: #veritabanında aynı e posta mevcut değilse:
         sqlRegistry = 'INSERT INTO USERS (FIRSTNAME,LASTNAME,EMAIL,PASSWORD,BIRTHDAY,GENDER,ADDRESS,ADDRESS2,' \
-                      'CITY,STATE,ZIPCODE,COUNTRY,ADDITIONAL,HOMEPHONE,MOBILEPHONE)' \
+                      'CITY,STATE,ZIPCODE,COUNTRY,ADDITIONAL,HOMEPHONE,MOBILEPHONE,COOKIE)' \
                       'VALUES(\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',' \
-                      '\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')'.format(firstName,
+                      '\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'None\')'.format(firstName,
                                                                                  lastName,
                                                                                  eMail,
                                                                                  password,
@@ -88,5 +88,19 @@ def loginControl(fields): #fields --> dictionary
         return False
 
 
+def addCookieForUser(eMail,randomId):
+    sqlCommand = 'UPDATE USERS SET COOKIE = \'{}\' WHERE EMAIL=\'{}\''.format(randomId,eMail)
+    try:
+        cursor.execute(sqlCommand)
+        db.commit()
+    except:
+        print('in DBOperations.addCookieForUser, while executing query.')
 
-
+def getInfo_cookie(cookieValue):
+    sqlCommand = 'SELECT FIRSTNAME FROM USERS WHERE cookie = {}'.format(cookieValue)
+    try:
+        cursor.execute(sqlCommand)
+    except:
+        print('in DBOperations.getInfo_cookie,while executing query.')
+    result = cursor.fetchall()
+    return result[0][0]

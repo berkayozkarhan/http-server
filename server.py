@@ -29,11 +29,9 @@ authorizedKeys = {}
 
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
-        print(self.path)
-        print('TEST--------------------------')
         cookie = self.headers.get('Cookie') #.items olursa 6. index.
         if cookie:
-            print('cookie:{},user:{}'.format(cookie,authorizedKeys[cookie]))
+            print('cookie:{}'.format(cookie))
         print('TEST--------------------------')
         #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
         if not (self.path.startswith('/bootstrap-shop')): #gönderilecek bütün dosyalar bu dizin içerisinde
@@ -46,13 +44,24 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
             #self.do_GET()
         if self.path == '/bootstrap-shop/loginsuccess': #Giriş başarılı olmuşsa cookie değerini kontrol ediyorum.
             cookie = self.headers.get('Cookie')  # .items olursa 6. index.
-            if cookie: #Test
-                print('cookie:{}'.format(cookie))
-                self.path = '/bootstrap-shop/loginsuccess.html'
-                self.do_GET()
+            if cookie:
+                cookieValue = cookie.split('=')[1]
+                print('cookie:{},cookieValue:{}'.format(cookie, cookieValue))
+                name = getInfo_cookie(cookieValue)
+                try:
+                    file = codecs.open('bootstrap-shop/loginsuccess.html', "r", "utf-8")
+                except:
+                    print("Error while opening file,path:/loginsuccess")
+                data = file.readlines()
+                data[37] = '<div class="span6">Welcome!<strong> {}</strong></div>'.format(name)
+                eachInSeperateLine = "\n".join(data)
+                self.send_response(200)
+                self.send_header('Content-type','text/html')
+                self.end_headers()
+                self.wfile.write(eachInSeperateLine.encode())
             else:
                 self.send_error(401,'You are not authorized to login to this page.')
-            #self.do_GET()
+                return #DİKKAT
         if self.path == '/bootstrap-shop/loginfailed':
             self.path = '/bootstrap-shop/loginfailed.html'
             #self.do_GET()
@@ -86,6 +95,7 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
     def do_POST(self):
         print("POST:{}".format(self.path))
         if self.path == '/user/login': #Giriş işleri
+            cookie = self.headers.get('Cookie')
             ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
             pdict['boundary'] = bytes(pdict['boundary'], "utf-8")
             content_len = int(self.headers.get('Content-length'))
@@ -97,20 +107,21 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 self.send_response(301)
                 c = cookies.SimpleCookie()
                 random_id = random.randint(0, 1000000000) + int(time.time())
-                authorizedKeys[random_id] = {fields.get('inputEmail')[0]}
                 c["unique_id"] = random_id  # tell the browser to store a cookie
+                email = fields.get('inputEmail')[0]
+                addCookieForUser(email,random_id)
                 c["unique_id"]["path"] = "/bootstrap-shop"
                 c["has_visited_before"] = "yes"  # tell the browser to store a cookie
                 # set a cookie with a custom expiration date.. this cookie will self-destruct in year
                 expiration = datetime.datetime.now() + datetime.timedelta(days=365)
                 c["semi-permanent-cookie"] = "here it is"
                 c["semi-permanent-cookie"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S EST")
-                test = c.output()
+                #test = c.output()
                 self.send_header('Cookie',c)
                 self.send_header('content-type', 'text/html')
                 self.send_header('Location', '/bootstrap-shop/loginsuccess')
                 self.end_headers()
-            else:
+            else: #Hatalı giriş
                 self.send_response(301)
                 self.send_header('content-type','text/html')
                 self.send_header('Location','/bootstrap-shop/loginfailed')
