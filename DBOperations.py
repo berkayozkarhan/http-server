@@ -89,7 +89,7 @@ def loginControl(fields): #fields --> dictionary
 
 
 def addCookieForUser(eMail,randomId):
-    sqlCommand = 'UPDATE USERS SET COOKIE = \'{}\' WHERE EMAIL=\'{}\''.format(randomId,eMail)
+    sqlCommand = 'UPDATE USERS SET TOKEN = \'{}\' WHERE EMAIL=\'{}\''.format(randomId,eMail)
     try:
         cursor.execute(sqlCommand)
         db.commit()
@@ -97,7 +97,7 @@ def addCookieForUser(eMail,randomId):
         print('in DBOperations.addCookieForUser, while executing query.')
 
 def getInfo_cookie(cookieValue):
-    sqlCommand = 'SELECT FIRSTNAME FROM USERS WHERE cookie = {}'.format(cookieValue)
+    sqlCommand = 'SELECT FIRSTNAME FROM USERS WHERE TOKEN = {}'.format(cookieValue)
     try:
         cursor.execute(sqlCommand)
     except:

@@ -29,10 +29,7 @@ authorizedKeys = {}
 
 class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfından kalıtım ile alınıyor.
     def do_GET(self):
-        cookie = self.headers.get('Cookie') #.items olursa 6. index.
-        if cookie:
-            print('cookie:{}'.format(cookie))
-        print('TEST--------------------------')
+        cookie = self.headers.get('Cookie').split('=')[1] #.items olursa 6. index.
         #encode edilecek dosya tipleri : application/javascript,text/css,text/html (utf-8)
         if not (self.path.startswith('/bootstrap-shop')): #gönderilecek bütün dosyalar bu dizin içerisinde
             self.path = "/bootstrap-shop" + self.path
@@ -78,8 +75,18 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
-                self.wfile.write(file.read().encode())
-                print('MIMETYPE:{}'.format(mimetype))
+                if cookie and mimetype == 'text/html': #kullanıcının unique_id değeri geçerli bir değer ise html dokümanına ismini yazarak gönderiyorum.
+                    print('test')
+                    name = getInfo_cookie(cookie)
+                    print(name)
+                    data = file.readlines()
+                    data[37] = '<div class="span6">Welcome!<strong> {}</strong></div>'.format(name)
+                    eachInSeperateLine = "\n".join(data)
+                    self.wfile.write(eachInSeperateLine.encode())
+                else:
+                    self.wfile.write(file.read().encode())
+
+
             else: #metin içerikli olmayanlar(binary) encode edilmeden gönderilmeli.
                 file = load_binary(filepath)
                 self.send_response(200)
@@ -118,6 +125,7 @@ class requestHandler(BaseHTTPRequestHandler): #BaseHTTPRequestHandler sınıfın
                 c["semi-permanent-cookie"]["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S EST")
                 #test = c.output()
                 self.send_header('Cookie',c)
+                self.send_header('Authorization','test')
                 self.send_header('content-type', 'text/html')
                 self.send_header('Location', '/bootstrap-shop/loginsuccess')
                 self.end_headers()
@@ -157,8 +165,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
